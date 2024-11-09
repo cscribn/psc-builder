@@ -1,0 +1,9 @@
+services:
+  psc-builder:
+    build:
+      context: .
+    image: psc-builder
+    container_name: psc-builder
+    privileged: true
+    volumes:
+      - .:/mnt/host

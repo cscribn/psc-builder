@@ -1,0 +1,46 @@
+# Building Prerequisites ##############
+# arm-linux-gnueabihf-strip
+
+include version.all
+
+# General Shared Variables ############
+TARGET := retroarch
+
+# Libretro Defines ####################
+#HAVE_CLASSIC = Classic Hook, disable some features
+#HAVE_SEGAM = Sega Mini Hook, change default configurations etc (TODO)
+
+all: $(TARGET)
+
+retroarch:
+	#Build the RetroArch Binary for cross platform classics (ARMv8 Cortex A35)
+	patchelf --version #Check if you have patchelf installed... (sudo apt-get install patchelf)
+	CFLAGS="-mcpu=cortex-a35 -mtune=cortex-a35 -mfpu=neon -mfloat-abi=hard" ./configure --host=armv8-sony-linux-gnueabihf --disable-wayland --disable-x11 --disable-opengl --disable-opengl1 --disable-opengl_core --enable-mali_fbdev --disable-freetype --enable-opengles --enable-udev --enable-alsa --enable-neon --enable-floathard --disable-discord
+	make HAVE_CLASSIC=1 HAVE_SEGAM=1 \
+		DEF_FLAGS="-Ofast \
+			-fno-lto \
+			-mcpu=cortex-a35 -mtune=cortex-a35 -mfpu=neon -mfloat-abi=hard"	\
+		-j #Cook it
+	${STRIP} -v retroarch
+	@echo "*********************************************************************"
+	@echo "***   PlayStation Classic RetroArch binary built successfully!   ***"
+	@echo "*********************************************************************"
+clean:
+	rm -rf obj-unix
+	rm -f *.d
+	rm -f *.o
+	rm -f audio/*.o
+	rm -f conf/*.o
+	rm -f gfx/*.o
+	rm -f gfx/drivers_font/*.o
+	rm -f gfx/drivers_font_renderer/*.o
+	rm -f gfx/drivers_context/*.o
+	rm -f gfx/py_state/*.o
+	rm -f compat/*.o
+	rm -f record/*.o
+	rm -f input/*.o
+	rm -f tools/*.o
+	rm -f $(BINDIR)/retroarch
+	rm -f $(BINDIR)/retroarch-joyconfig
+	rm -f $(PNDDIR)/readme.html
+	rm -f retroarch
